@@ -9,6 +9,7 @@ import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Stack } from "./utils";
 
 import styles from "./stack-page.module.css";
+import { MAX_LENGTH_ELEMENTS } from "../../constants/constant-elements";
 
 export const StackPage: React.FC = () => {
   const [string, setString] = useState("");
@@ -65,7 +66,7 @@ export const StackPage: React.FC = () => {
     <SolutionLayout title="Стек">
       <section className={styles.section}>
         <Input
-          maxLength={4}
+          maxLength={MAX_LENGTH_ELEMENTS}
           value={string}
           onChange={onChange}
           type="text"

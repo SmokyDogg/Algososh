@@ -13,6 +13,8 @@ export const StringComponent: React.FC = () => {
   const [arr, setArr] = useState<Array<TArray>>([]);
   const [loading, setLoading] = useState(false);
 
+  const MAX_LENGTH_ELEMENT = 11;
+
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setString(e.target.value);
   };
@@ -49,7 +51,7 @@ export const StringComponent: React.FC = () => {
     <SolutionLayout title="Строка">
       <section className={styles.section}>
         <Input
-          maxLength={11}
+          maxLength={MAX_LENGTH_ELEMENT}
           value={string}
           onChange={onChange}
           type="text"

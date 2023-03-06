@@ -8,6 +8,7 @@ import { Input } from "../ui/input/input";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Queue } from "./utils";
 import styles from "./queue-page.module.css";
+import { MAX_LENGTH_ELEMENTS } from "../../constants/constant-elements";
 
 
 export const QueuePage: React.FC = () => {
@@ -67,7 +68,7 @@ export const QueuePage: React.FC = () => {
     <SolutionLayout title="Очередь">
       <section className={styles.section}>
         <Input
-          maxLength={4}
+          maxLength={MAX_LENGTH_ELEMENTS}
           value={string}
           onChange={onChangeValue}
           type="text"

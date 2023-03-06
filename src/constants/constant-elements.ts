@@ -1,0 +1,1 @@
+export const MAX_LENGTH_ELEMENTS = 4;

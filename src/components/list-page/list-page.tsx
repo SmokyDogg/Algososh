@@ -9,7 +9,8 @@ import { Input } from "../ui/input/input";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { LinkedList } from "./utils";
 
-import styles from './list-page.module.css'
+import styles from "./list-page.module.css";
+import { MAX_LENGTH_ELEMENTS } from "../../constants/constant-elements";
 
 enum Location {
   top = "top",
@@ -21,13 +22,19 @@ type TElementStates = {
   changingIndex: number;
 };
 
-const randomArr = Array.from({ length: randomNumber(3, 6) }, () =>
-  String(randomNumber(0, 99))
+const MIN_LENGTH_ARR = 3;
+const MAX_LENGTH_ARR = 6;
+const MIN_VALUE_ELEMENT = 0;
+const MAX_VALUE_ELEMENT = 99;
+
+const randomArr = Array.from(
+  { length: randomNumber(MIN_LENGTH_ARR, MAX_LENGTH_ARR) },
+  () => String(randomNumber(MIN_VALUE_ELEMENT, MAX_VALUE_ELEMENT))
 );
 
 export const ListPage: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
-  const [inputIndex, setInputIndex] = useState<string>("");
+  const [inputIndex, setInputIndex] = useState<number | null>(null);
   const list = useRef(new LinkedList(randomArr));
   const [arr, setArr] = useState<string[]>(list.current.toArray());
   const [smallCircleIndex, setSmallCircleIndex] = useState(-1);
@@ -53,7 +60,7 @@ export const ListPage: React.FC = () => {
     setInputValue(e.target.value);
   };
   const onChangeIndex = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputIndex(e.target.value);
+    setInputIndex(Number(e.target.value));
   };
 
   const onClickAddHead = async () => {
@@ -68,7 +75,7 @@ export const ListPage: React.FC = () => {
     setArr(list.current.toArray());
     await delay(SHORT_DELAY_IN_MS);
     setTypeElementStates({ ...typeElementStates, modifiedIndex: -1 });
-    setInputIndex("");
+    setInputValue("");
     setLoading({ ...loading, loaderAddHead: false });
     setDisabled(false);
   };
@@ -77,11 +84,12 @@ export const ListPage: React.FC = () => {
     setLoading({ ...loading, loaderAddTail: true });
     setDisabled(true);
     setCurrentElement(inputValue);
-    setSmallCircleLocation(Location.top);
+    setSmallCircleLocation(Location.bottom);
     setSmallCircleIndex(list.current.getSize);
     await delay(SHORT_DELAY_IN_MS);
     list.current.append(inputValue);
     setTypeElementStates({ ...typeElementStates, modifiedIndex: arr.length });
+    setSmallCircleIndex(arr.length);
     setSmallCircleIndex(-1);
     setArr(list.current.toArray());
     await delay(SHORT_DELAY_IN_MS);
@@ -147,7 +155,7 @@ export const ListPage: React.FC = () => {
     setTypeElementStates({ ...typeElementStates, modifiedIndex: -1 });
     setArr(list.current.toArray());
     setInputValue("");
-    setInputIndex("");
+    setInputIndex(null);
     setLoading({ ...loading, loaderAddIndex: false });
     setDisabled(false);
   };
@@ -173,7 +181,7 @@ export const ListPage: React.FC = () => {
     setSmallCircleIndex(-1);
     list.current.deleteByIndex(index);
     setArr(list.current.toArray());
-    setInputIndex("");
+    setInputIndex(null);
     setLoading({ ...loading, loaderDeleteIndex: false });
     setDisabled(false);
   };
@@ -214,7 +222,7 @@ export const ListPage: React.FC = () => {
       <section className={styles.section}>
         <Input
           placeholder="Введите текст"
-          maxLength={4}
+          maxLength={MAX_LENGTH_ELEMENTS}
           type="text"
           isLimitText={true}
           extraClass={styles.input}
@@ -229,7 +237,7 @@ export const ListPage: React.FC = () => {
             onClickAddHead();
           }}
           isLoader={loading.loaderAddHead}
-          disabled={!inputValue}
+          disabled={!inputValue || loading.loaderAddTail}
         />
         <Button
           text="Добавить в tail"
@@ -238,7 +246,7 @@ export const ListPage: React.FC = () => {
             onClickAddTail();
           }}
           isLoader={loading.loaderAddTail}
-          disabled={!inputValue}
+          disabled={!inputValue || loading.loaderAddHead}
         />
         <Button
           text="Удалить из head"
@@ -247,7 +255,7 @@ export const ListPage: React.FC = () => {
             onClickDeleteHead();
           }}
           isLoader={loading.loaderDeleteHead}
-          disabled={arr.length === 0}
+          disabled={arr.length === 0 || loading.loaderDeleteTail}
         />
         <Button
           text="Удалить из tail"
@@ -256,7 +264,7 @@ export const ListPage: React.FC = () => {
             onClickDeleteTail();
           }}
           isLoader={loading.loaderDeleteTail}
-          disabled={arr.length === 0}
+          disabled={arr.length === 0 || loading.loaderDeleteHead}
         />
       </section>
       <section className={styles.section}>
@@ -264,7 +272,7 @@ export const ListPage: React.FC = () => {
           extraClass={styles.input}
           placeholder="Введите индекс"
           onChange={onChangeIndex}
-          value={inputIndex}
+          value={inputIndex? `${inputIndex}` : ''}
           type="number"
           disabled={disabled}
           min="0"
@@ -277,7 +285,7 @@ export const ListPage: React.FC = () => {
             onClickAddIndex();
           }}
           isLoader={loading.loaderAddIndex}
-          disabled={!inputIndex || !inputValue}
+          disabled={inputIndex === null || inputValue.length === 0 || inputIndex > arr.length - 1}
         />
         <Button
           text="Удалить по индексу"
@@ -286,7 +294,7 @@ export const ListPage: React.FC = () => {
             onClickDeleteIndex();
           }}
           isLoader={loading.loaderDeleteIndex}
-          disabled={!inputIndex}
+          disabled={inputIndex=== null || inputIndex > arr.length - 1 || loading.loaderAddIndex}
         />
       </section>
       <ul className={styles.list}>
